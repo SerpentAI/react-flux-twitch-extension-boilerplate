@@ -73,22 +73,12 @@ module.exports = {
         // We don't currently advertise code splitting but Webpack supports it.
         filename: "js/[name].js",
         chunkFilename: "js/[name].chunk.js",
-        // We inferred the "public path" (such as / or /my-project) from homepage.
-        publicPath: publicPath,
+        // NOTE: We set this to relative because how twitch delievers assets
+        publicPath: "",
         // Point sourcemap entries to original disk location (format as URL on Windows)
         devtoolModuleFilenameTemplate: info => path.relative(paths.appSrc, info.absoluteResourcePath).replace(/\\/g, "/")
     },
     externals: {
-        axios: "axios",
-        uuidv4: "uuidv4",
-        "prop-types": "PropTypes",
-        react: "React",
-        "react-dom": "ReactDOM",
-        flux: "Flux",
-        classnames: "classNames",
-        tether: "Tether",
-        "react-transition-group": "ReactTransitionGroup.CSSTransitionGroup",
-        "@blueprintjs/core": "Blueprint.Core"
     },
     resolve: {
         // This allows you to set a fallback for where Webpack should look for modules.
@@ -184,7 +174,7 @@ module.exports = {
                             babelrc: false,
                             presets: [require.resolve("babel-preset-react-app")],
                             // @remove-on-eject-end
-                            compact: true
+                            compact: false
                         }
                     },
                     // The notation here is somewhat confusing.
@@ -268,6 +258,14 @@ module.exports = {
         ]
     },
     plugins: [
+        // Bundle all node_modules we use in our application and a seperate
+        // file called "vendor"
+        new webpack.optimize.CommonsChunkPlugin({
+            name: "vendor",
+            minChunks: function (module) {
+                return module.context && module.context.includes("node_modules");
+            }
+        }),
         // Makes some environment variables available in index.html.
         // The public URL is available as %PUBLIC_URL% in index.html, e.g.:
         // <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
@@ -280,16 +278,70 @@ module.exports = {
             template: paths.appHtml,
             minify: {
                 removeComments: true,
-                collapseWhitespace: true,
+                collapseWhitespace: false,
                 removeRedundantAttributes: true,
                 useShortDoctype: true,
                 removeEmptyAttributes: true,
                 removeStyleLinkTypeAttributes: true,
                 keepClosingSlash: true,
-                minifyJS: true,
+                minifyJS: false,
                 minifyCSS: true,
                 minifyURLs: true
             }
+        }),
+        // Generates an `viewer.html` file with the <script> injected
+        new HtmlWebpackPlugin({
+            filename: 'viewer.html',
+            inject: true,
+            template: paths.appViewerHtml,
+            minify: {
+                removeComments: true,
+                collapseWhitespace: false,
+                removeRedundantAttributes: true,
+                useShortDoctype: true,
+                removeEmptyAttributes: true,
+                removeStyleLinkTypeAttributes: true,
+                keepClosingSlash: true,
+                minifyJS: false,
+                minifyCSS: true,
+                minifyURLs: false,
+            },
+        }),
+        // Generates an `config.html` file with the <script> injected
+        new HtmlWebpackPlugin({
+            filename: 'config.html',
+            inject: true,
+            template: paths.appConfigHtml,
+            minify: {
+                removeComments: true,
+                collapseWhitespace: false,
+                removeRedundantAttributes: true,
+                useShortDoctype: true,
+                removeEmptyAttributes: true,
+                removeStyleLinkTypeAttributes: true,
+                keepClosingSlash: true,
+                minifyJS: false,
+                minifyCSS: true,
+                minifyURLs: false,
+            },
+        }),
+        // Generates an `live_config.html` file with the <script> injected
+        new HtmlWebpackPlugin({
+            filename: 'live_config.html',
+            inject: true,
+            template: paths.appLiveConfigHtml,
+            minify: {
+                removeComments: true,
+                collapseWhitespace: false,
+                removeRedundantAttributes: true,
+                useShortDoctype: true,
+                removeEmptyAttributes: true,
+                removeStyleLinkTypeAttributes: true,
+                keepClosingSlash: true,
+                minifyJS: false,
+                minifyCSS: true,
+                minifyURLs: false,
+            },
         }),
         // Makes some environment variables available to the JS code, for example:
         // if (process.env.NODE_ENV === 'production') { ... }. See `./env.js`.

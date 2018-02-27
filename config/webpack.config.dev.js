@@ -67,16 +67,6 @@ module.exports = {
         devtoolModuleFilenameTemplate: info => path.resolve(info.absoluteResourcePath).replace(/\\/g, "/")
     },
     externals: {
-        axios: "axios",
-        uuidv4: "uuidv4",
-        "prop-types": "PropTypes",
-        react: "React",
-        "react-dom": "ReactDOM",
-        flux: "Flux",
-        classnames: "classNames",
-        tether: "Tether",
-        "react-transition-group": "ReactTransitionGroup.CSSTransitionGroup",
-        "@blueprintjs/core": "Blueprint.Core"
     },
 
     resolve: {
@@ -229,6 +219,24 @@ module.exports = {
         new HtmlWebpackPlugin({
             inject: true,
             template: paths.appHtml
+        }),
+        // Generates an `viewer.html` file with the <script> injected
+        new HtmlWebpackPlugin({
+            filename: 'viewer.html',
+            inject: true,
+            template: paths.appViewerHtml,
+        }),
+        // Generates an `config.html` file with the <script> injected
+        new HtmlWebpackPlugin({
+            filename: 'config.html',
+            inject: true,
+            template: paths.appConfigHtml,
+        }),
+        // Generates an `live_config.html` file with the <script> injected
+        new HtmlWebpackPlugin({
+            filename: 'live_config.html',
+            inject: true,
+            template: paths.appLiveConfigHtml,
         }),
         // Add module names to factory functions so they appear in browser profiler.
         new webpack.NamedModulesPlugin(),
